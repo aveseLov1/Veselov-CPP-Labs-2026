@@ -17,8 +17,8 @@ public:
     Planet(Planet&& other) noexcept;
     ~Planet();
 
-    // Операторы присваивания (copy-and-swap)
-    Planet& operator=(const Planet& other) noexcept;
+    // ✅ Оператор присваивания — параметр по значению!
+    Planet& operator=(Planet other) noexcept;
 
     // Методы доступа
     const char* getName() const;

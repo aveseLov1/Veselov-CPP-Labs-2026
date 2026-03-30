@@ -1,27 +1,24 @@
 #include "Planet.hpp"
 #include <cstring>
 #include <algorithm>
+#include <utility>  // для std::swap
 
 // Конструктор по умолчанию
 Planet::Planet() noexcept : name(nullptr), mass(0.0) {}
 
 // Конструктор с параметрами
-Planet::Planet(const char* name, double mass) : mass(mass) {
-    if (name) {
-        this->name = new char[std::strlen(name) + 1];
-        std::strcpy(this->name, name);
-    } else {
-        this->name = nullptr;
+Planet::Planet(const char* name_, double mass_) : name(nullptr), mass(mass_) {
+    if (name_) {
+        name = new char[std::strlen(name_) + 1];
+        std::strcpy(name, name_);
     }
 }
 
 // Конструктор копирования
-Planet::Planet(const Planet& other) : mass(other.mass) {
+Planet::Planet(const Planet& other) : name(nullptr), mass(other.mass) {
     if (other.name) {
         name = new char[std::strlen(other.name) + 1];
         std::strcpy(name, other.name);
-    } else {
-        name = nullptr;
     }
 }
 
@@ -37,8 +34,8 @@ Planet::~Planet() {
     delete[] name;
 }
 
-// Оператор присваивания (copy-and-swap)
-Planet& Planet::operator=(const Planet& other) noexcept {
+// ✅ Оператор присваивания — ИСПРАВЛЕНО (copy-and-swap)
+Planet& Planet::operator=(Planet other) noexcept {  // ← передача по значению!
     std::swap(name, other.name);
     std::swap(mass, other.mass);
     return *this;
