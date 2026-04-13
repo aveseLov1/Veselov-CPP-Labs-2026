@@ -41,12 +41,12 @@ public:
 
     // Дружественные операторы для работы с double и int
     friend Fraction operator+(double lhs, const Fraction& rhs);
-    friend Fraction operator+(int lhs, const Fraction& rhs);
+    // friend Fraction operator+(int lhs, const Fraction& rhs);
     friend Fraction operator+(const Fraction& lhs, double rhs);
     friend Fraction operator+(const Fraction& lhs, int rhs);
 
     friend Fraction& operator+=(Fraction& lhs, double rhs);
-    friend Fraction& operator+=(Fraction& lhs, int rhs);
+    // friend Fraction& operator+=(Fraction& lhs, int rhs);
 
     // Дружественные функции для потокового ввода/вывода
     friend std::ostream& operator<<(std::ostream& os, const Fraction& frac);

@@ -3,6 +3,8 @@
 #include <cstring>
 #include <cstdlib>
 
+// ==================== КОНСТРУКТОРЫ ====================
+
 // Конструктор по умолчанию (0/1)
 Fraction::Fraction() : numerator(0), denominator(1) {}
 
@@ -64,7 +66,9 @@ Fraction::Fraction(double value) {
     simplify();
 }
 
-// НОД
+// ==================== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ====================
+
+// НОД (алгоритм Евклида)
 int Fraction::gcd(int a, int b) const {
     a = std::abs(a);
     b = std::abs(b);
@@ -141,7 +145,10 @@ void Fraction::fromString(const char* str) {
     if (slashPos != nullptr) {
         // Нашли слеш - это дробь
         if (spacePos != nullptr && spacePos < slashPos) {
-            // Есть целая часть: целая часть числитель/знаменатель
+            // Формат: "целая_часть числитель/знаменатель"
+            // Знак относится ко всей дроби: sign * (целая_часть + числитель/знаменатель)
+
+            // Извлекаем целую часть (без знака)
             int wholePart = 0;
             const char* wholeStart = ptr;
             int wholeLen = spacePos - wholeStart;
@@ -154,7 +161,7 @@ void Fraction::fromString(const char* str) {
             wholeBuf[wholeIdx] = '\0';
             wholePart = std::atoi(wholeBuf);
 
-            // Пропускаем пробелы
+            // Пропускаем пробелы после целой части
             const char* numStart = spacePos + 1;
             while (*numStart == ' ' || *numStart == '\t') {
                 numStart++;
@@ -188,10 +195,22 @@ void Fraction::fromString(const char* str) {
                 throw std::invalid_argument("Знаменатель не может быть равен 0");
             }
 
-            numerator = sign * (wholePart * den + num);
-            denominator = den;
+            // Вычисляем дробь: целая_часть + числитель/знаменатель
+            // Формула: wholePart + num/den = (wholePart * den + num) / den
+            int totalNum = wholePart * den + num;
+            int totalDen = den;
+
+            // Сокращаем полученную дробь
+            int divisor = gcd(totalNum, totalDen);
+            totalNum /= divisor;
+            totalDen /= divisor;
+
+            // Применяем знак ко всей дроби
+            numerator = sign * totalNum;
+            denominator = totalDen;
+
         } else {
-            // Только дробная часть: числитель/знаменатель
+            // Формат: "числитель/знаменатель"
             int num = 0;
             const char* numPtr = ptr;
             char numBuf[32];
@@ -231,6 +250,8 @@ void Fraction::fromString(const char* str) {
     simplify();
 }
 
+// ==================== АРИФМЕТИЧЕСКИЕ ОПЕРАТОРЫ ====================
+
 // Оператор сложения дробей
 Fraction Fraction::operator+(const Fraction& other) const {
     Fraction result;
@@ -265,7 +286,9 @@ Fraction& Fraction::operator-=(const Fraction& other) {
     return *this;
 }
 
-// Дружественные операторы для double
+// ==================== ДРУЖЕСТВЕННЫЕ ОПЕРАТОРЫ ====================
+
+// Операторы для double
 Fraction operator+(double lhs, const Fraction& rhs) {
     return Fraction(lhs) + rhs;
 }
@@ -279,7 +302,7 @@ Fraction& operator+=(Fraction& lhs, double rhs) {
     return lhs;
 }
 
-// Дружественные операторы для int
+// Операторы для int
 Fraction operator+(int lhs, const Fraction& rhs) {
     return Fraction(lhs, 1) + rhs;
 }
@@ -292,6 +315,8 @@ Fraction& operator+=(Fraction& lhs, int rhs) {
     lhs = lhs + Fraction(rhs, 1);
     return lhs;
 }
+
+// ==================== ПОТОКОВЫЕ ОПЕРАТОРЫ ====================
 
 // Оператор вывода
 std::ostream& operator<<(std::ostream& os, const Fraction& frac) {
@@ -313,16 +338,26 @@ std::ostream& operator<<(std::ostream& os, const Fraction& frac) {
     return os;
 }
 
-// Оператор ввода
+// Оператор ввода - читаем всю строку целиком
 std::istream& operator>>(std::istream& is, Fraction& frac) {
     char buffer[256];
-    is >> buffer;
+    is.getline(buffer, 256);  // Читаем всю строку, а не до пробела
+
+    // Удаляем возможный символ новой строки
+    int len = strlen(buffer);
+    if (len > 0 && buffer[len-1] == '\n') {
+        buffer[len-1] = '\0';
+    }
+
+    // Пропускаем пустые строки
+    if (strlen(buffer) == 0) {
+        is.getline(buffer, 256);
+    }
 
     try {
         frac.fromString(buffer);
     } catch (const std::exception& e) {
-        std::cerr << "Ошибка ввода дроби: " << e.what() << std::endl;
-        frac = Fraction();
+        throw;  // Пробрасываем исключение дальше
     }
 
     return is;
