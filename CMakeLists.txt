@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(lab_4)
+project(lab_5)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -8,11 +8,17 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(SOURCES
     main.cpp
-    fraction.cpp
+    megapolis.cpp
+    city.cpp
+    region.cpp
+    place.cpp
 )
 
 set(HEADERS
-    fraction.hpp
+    megapolis.hpp
+    city.hpp
+    region.hpp
+    place.hpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
