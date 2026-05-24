@@ -28,7 +28,7 @@ public:
 
     // Операторы
     Term operator+(const Term& other) const;   // сложение (только для одинаковых степеней)
-    Term& operator=(const Term& other);        // присваивание
+    // Term& operator=(const Term& other);        // присваивание
     bool operator==(const Term& other) const;  // сравнение (по степени)
 
     // Ввод/вывод
